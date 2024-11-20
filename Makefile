@@ -8,11 +8,14 @@ OBJECTS=$(patsubst %.c,%.o,$(SOURCES))
 TEST_SRC=$(wildcard tests/*_tests.c)
 TESTS=$(patsubst %.c,%,$(TEST_SRC))
 
+PROGRAMS_SRC=$(wildcard bin/*.c)
+PROGRAMS=$(patsubst %.c,%,$(PROGRAMS_SRC))
+
 TARGET=build/gut.a
 SO_TARGET=$(patsubst %.a,%.so,$(TARGET))
 
 # The Target Build
-all: $(TARGET) $(SO_TARGET) tests
+all: $(TARGET) $(SO_TARGET) tests $(PROGRAMS)
 
 dev: CFLAGS=-g -Wall -Isrc -Wall -Wextra $(OPTFLAGS)
 dev: all
@@ -24,6 +27,8 @@ $(TARGET): build $(OBJECTS)
 
 $(SO_TARGET): $(TARGET) $(OBJECTS)
 	$(CC) -shared -o $@ $(OBJECTS)
+
+$(PROGRAMS): CFLAGS += $(TARGET)
 
 build:
 	@mkdir -p build
@@ -37,8 +42,8 @@ tests: $(TESTS)
 
 # The Cleaner
 clean:
-	rm -rf build $(OBJECTS) $(TESTS)
-	rm -f tests/tests.log 
+	rm -rf build $(OBJECTS) $(TESTS) $(PROGRAMS)
+	rm -f tests/tests.log
 	find . -name "*.gc*" -exec rm {} \;
 	rm -rf `find . -name "*.dSYM" -print`
 
